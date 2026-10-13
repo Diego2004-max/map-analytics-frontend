@@ -6,7 +6,7 @@ import { Radar, ShieldAlert, CheckCircle2, RefreshCw, MapPin } from 'lucide-reac
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export default function App() {
-  const [darkMode, setDarkMode] = useState(false); // Light por defecto
+  const [darkMode, setDarkMode] = useState(false);
   const [user, setUser] = useState(null);
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,7 +26,7 @@ export default function App() {
       const res = await fetch(`${API_URL}/api/reports`);
       const data = await res.json();
       if (data.success) {
-        setReports(data.reports || []);
+        setReports(data.reports || data.data || []);
       }
     } catch (error) {
       console.error('Error al obtener reportes:', error);
@@ -53,11 +53,11 @@ export default function App() {
   const formatReportLocation = (lat, lon) => {
     const la = parseFloat(lat || 1.204265);
     const lo = parseFloat(lon || -77.295042);
-    const enColombia = la >= -4.5 && la <= 13.5 && lo >= -79.0 && lo <= -66.8;
+    const enColombia = la >= -4.23 && la <= 12.46 && lo >= -79.0 && lo <= -66.85;
     if (enColombia) {
       return "🇨🇴 Colombia (Territorio Nacional)";
     }
-    return `🌍 Ubicación Internacional (${la.toFixed(2)}, ${lo.toFixed(2)})`;
+    return ` Ubicación Internacional (${la.toFixed(2)}, ${lo.toFixed(2)})`;
   };
 
   useEffect(() => {
@@ -93,7 +93,7 @@ export default function App() {
         </div>
 
         {scanResult && (
-          <div className="mb-8 bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-900/50 rounded-3xl p-5 shadow-lg animate-fadeIn">
+          <div className="mb-8 bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-900/50 rounded-3xl p-5 shadow-lg">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 flex items-center gap-2">
                 <ShieldAlert className="w-4 h-4" /> Resultados Satelitales
