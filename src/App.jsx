@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Navbar } from './components/Navbar';
 import { ReportForm } from './components/ReportForm';
-import { Radar, ShieldAlert, CheckCircle2, RefreshCw, MapPin } from 'lucide-react';
+import { Radar, ShieldAlert, CheckCircle2, RefreshCw, MapPin, ShieldCheck } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export default function App() {
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(false); // Light por defecto
   const [user, setUser] = useState(null);
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,6 +20,38 @@ export default function App() {
       document.documentElement.classList.remove('dark');
     }
   }, [darkMode]);
+
+  // Inicializar Google Sign-In real para la pantalla de bienvenida obligatoria
+  useEffect(() => {
+    if (!user && window.google) {
+      try {
+        window.google.accounts.id.initialize({
+          client_id: "756822032174-lb6mm8kg6qasoabcdhdvuq4lufi8uhh0.apps.googleusercontent.com",
+          callback: (response) => {
+            const base64Url = response.credential.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
+              return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            
+            const googleUser = JSON.parse(jsonPayload);
+            setUser({
+              name: googleUser.name,
+              email: googleUser.email,
+              avatar: googleUser.picture
+            });
+          }
+        });
+
+        window.google.accounts.id.renderButton(
+          document.getElementById("welcome-google-btn"),
+          { theme: "outline", size: "large", width: "100%" }
+        );
+      } catch (err) {
+        console.error("Error al inicializar botón de Google:", err);
+      }
+    }
+  }, [user]);
 
   const fetchReports = async () => {
     try {
@@ -57,13 +89,37 @@ export default function App() {
     if (enColombia) {
       return "🇨🇴 Colombia (Territorio Nacional)";
     }
-    return ` Ubicación Internacional (${la.toFixed(2)}, ${lo.toFixed(2)})`;
+    return `🌍 Ubicación Internacional (${la.toFixed(2)}, ${lo.toFixed(2)})`;
   };
 
   useEffect(() => {
-    fetchReports();
-  }, []);
+    if (user) {
+      fetchReports();
+    }
+  }, [user]);
 
+  // SI NO HAY USUARIO AUTENTICADO, MUESTRA LA PANTALLA DE BIENVENIDA OBLIGATORIA
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-950 via-gray-900 to-indigo-950 flex items-center justify-center p-4">
+        <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-800 w-full max-w-md p-8 text-center animate-fadeIn">
+          <div className="inline-flex p-3.5 bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-2xl mb-4 shadow-inner">
+            <ShieldCheck className="w-10 h-10" />
+          </div>
+          <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white">Map Analytic AI</h1>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 mb-6">
+            Plataforma de inteligencia espacial y monitoreo de anomalías. Inicia sesión con Google para acceder al sistema.
+          </p>
+          
+          <div className="flex justify-center w-full min-h-[45px]">
+            <div id="welcome-google-btn"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // SI YA ESTÁ AUTENTICADO, MUESTRA EL PANEL COMPLETO
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
       <Navbar darkMode={darkMode} setDarkMode={setDarkMode} user={user} setUser={setUser} />
@@ -131,7 +187,7 @@ export default function App() {
               ) : reports.length === 0 ? (
                 <div className="py-12 text-center">
                   <p className="text-gray-500 dark:text-gray-400 text-sm">No hay reportes registrados aún.</p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Inicia sesión e ingresa el primer reporte.</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Usa el formulario para ingresar el primer reporte.</p>
                 </div>
               ) : (
                 <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
