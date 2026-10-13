@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { Navbar } from './components/Navbar';
 import { ReportForm } from './components/ReportForm';
-import { Radar, ShieldAlert, CheckCircle2, RefreshCw } from 'lucide-react';
+import { Radar, ShieldAlert, CheckCircle2, RefreshCw, MapPin } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export default function App() {
-  const [darkMode, setDarkMode] = useState(false); // Por defecto Light Mode
+  const [darkMode, setDarkMode] = useState(false); // Light por defecto
+  const [user, setUser] = useState(null);
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [scanning, setScanning] = useState(false);
   const [scanResult, setScanResult] = useState(null);
 
-  // Sincronizar clase "dark" en el elemento raíz HTML
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add('dark');
@@ -50,32 +50,41 @@ export default function App() {
     }
   };
 
+  const formatReportLocation = (lat, lon) => {
+    const la = parseFloat(lat || 1.204265);
+    const lo = parseFloat(lon || -77.295042);
+    const enColombia = la >= -4.5 && la <= 13.5 && lo >= -79.0 && lo <= -66.8;
+    if (enColombia) {
+      return "🇨🇴 Colombia (Territorio Nacional)";
+    }
+    return `🌍 Ubicación Internacional (${la.toFixed(2)}, ${lo.toFixed(2)})`;
+  };
+
   useEffect(() => {
     fetchReports();
   }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-      <Navbar darkMode={darkMode} setDarkMode={setDarkMode} />
+      <Navbar darkMode={darkMode} setDarkMode={setDarkMode} user={user} setUser={setUser} />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Banner de Radar */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <div className="mb-8 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
-          <div className="relative z-10 max-w-xl">
+          <div className="relative z-10 max-w-xl text-center md:text-left">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-white text-xs font-semibold mb-3 border border-white/20">
-              <Radar className="w-3.5 h-3.5 animate-spin" /> Monitoreo Satelital Activo
+              <Radar className="w-3.5 h-3.5 animate-spin" /> Monitoreo Espacial Activo
             </span>
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Centro de Inteligencia Territorial</h2>
-            <p className="mt-2 text-blue-100 text-sm">
-              Escaneo en tiempo real de anomalías territoriales y geológicas en Colombia potenciado con motores de IA.
+            <p className="mt-2 text-blue-100 text-xs sm:text-sm">
+              Plataforma satelital de detección y análisis de anomalías en Colombia y el mundo.
             </p>
           </div>
-          <div className="relative z-10 flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+          <div className="relative z-10 w-full md:w-auto flex justify-center">
             <button
               onClick={handleScanRadar}
               disabled={scanning}
-              className="flex items-center justify-center space-x-2 px-6 py-3 bg-white text-blue-700 hover:bg-blue-50 font-bold rounded-2xl shadow-lg transition-all transform active:scale-95 disabled:opacity-50 text-sm"
+              className="w-full sm:w-auto flex items-center justify-center space-x-2 px-6 py-3 bg-white text-blue-700 hover:bg-blue-50 font-bold rounded-2xl shadow-lg transition-all transform active:scale-95 disabled:opacity-50 text-sm"
             >
               <RefreshCw className={`w-4 h-4 ${scanning ? 'animate-spin' : ''}`} />
               <span>{scanning ? 'Escaneando...' : 'Escanear Radar Nacional'}</span>
@@ -83,34 +92,32 @@ export default function App() {
           </div>
         </div>
 
-        {/* Resultado del Escaneo por Radar si existe */}
         {scanResult && (
-          <div className="mb-8 bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-900/50 rounded-2xl p-5 shadow-lg">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 flex items-center gap-2">
-                <ShieldAlert className="w-4 h-4" /> Resultados del Radar Satelital
+          <div className="mb-8 bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-900/50 rounded-3xl p-5 shadow-lg animate-fadeIn">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 flex items-center gap-2">
+                <ShieldAlert className="w-4 h-4" /> Resultados Satelitales
               </h3>
-              <span className="text-xs px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-semibold">
-                {scanResult.count} anomalías detectadas
+              <span className="text-xs px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-semibold">
+                {scanResult.count} detectadas
               </span>
             </div>
             <p className="text-xs text-gray-600 dark:text-gray-300">
-              El análisis territorial se completó con éxito en las regiones monitoreadas.
+              Escaneo completado. Las anomalías territoriales se han auditado en tiempo real.
             </p>
           </div>
         )}
 
-        {/* Grid Principal */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           <div className="lg:col-span-5">
-            <ReportForm onReportCreated={fetchReports} />
+            <ReportForm onReportCreated={fetchReports} user={user} />
           </div>
 
           <div className="lg:col-span-7">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-6 transition-all">
+            <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 p-5 sm:p-6 transition-all">
               <div className="flex items-center justify-between mb-5 pb-4 border-b border-gray-100 dark:border-gray-700">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-500" /> Reportes Registrados en el Sistema
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500" /> Reportes del Sistema
                 </h3>
                 <span className="text-xs px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full font-medium">
                   {reports.length} totales
@@ -119,31 +126,34 @@ export default function App() {
 
               {loading ? (
                 <div className="py-12 text-center text-gray-500 dark:text-gray-400 text-sm">
-                  Cargando reportes desde la base de datos...
+                  Cargando reportes en tiempo real...
                 </div>
               ) : reports.length === 0 ? (
                 <div className="py-12 text-center">
-                  <p className="text-gray-500 dark:text-gray-400 text-sm">No hay reportes registrados en la base de datos aún.</p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Usa el formulario de la izquierda para crear el primero.</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">No hay reportes registrados aún.</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Inicia sesión e ingresa el primer reporte.</p>
                 </div>
               ) : (
                 <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
                   {reports.map((report) => (
                     <div
                       key={report.id}
-                      className="p-4 rounded-xl border border-gray-100 dark:border-gray-700/80 bg-gray-50/50 dark:bg-gray-900/50 hover:border-blue-300 dark:hover:border-blue-700 transition-all shadow-sm"
+                      className="p-4 rounded-2xl border border-gray-100 dark:border-gray-700/80 bg-gray-50/50 dark:bg-gray-900/50 hover:border-blue-300 dark:hover:border-blue-700 transition-all shadow-sm"
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <h4 className="font-bold text-base text-gray-900 dark:text-white">{report.title}</h4>
-                        <span className="px-2.5 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded-lg whitespace-nowrap">
+                        <h4 className="font-bold text-sm sm:text-base text-gray-900 dark:text-white">{report.title}</h4>
+                        <span className="px-2.5 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded-xl whitespace-nowrap">
                           {report.category || 'General'}
                         </span>
                       </div>
-                      <p className="text-gray-600 dark:text-gray-300 text-sm mt-2 leading-relaxed">{report.description}</p>
+                      <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm mt-2 leading-relaxed">{report.description}</p>
                       
-                      <div className="mt-4 pt-3 border-t border-gray-200/60 dark:border-gray-800 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                        <span>Coordenadas: {report.latitude || '1.204265'}, {report.longitude || '-77.295042'}</span>
-                        <span className="font-medium text-gray-400 dark:text-gray-500">ID #{report.id}</span>
+                      <div className="mt-4 pt-3 border-t border-gray-200/60 dark:border-gray-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-gray-500 dark:text-gray-400">
+                        <span className="flex items-center gap-1 font-medium text-blue-600 dark:text-blue-400">
+                          <MapPin className="w-3.5 h-3.5" />
+                          {formatReportLocation(report.latitude, report.longitude)}
+                        </span>
+                        <span className="text-gray-400 dark:text-gray-500">Por: {report.author || 'Anónimo'}</span>
                       </div>
                     </div>
                   ))}
