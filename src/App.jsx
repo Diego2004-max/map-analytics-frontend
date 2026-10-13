@@ -46,7 +46,7 @@ export default function App() {
         <header className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center gap-3">
-              <span>📍</span> Map Analytic AI
+              <span></span> Map Analytic AI
             </h1>
             <p className="text-slate-400 text-xs sm:text-sm mt-1">
               Plataforma de inteligencia espacial y monitoreo de anomalías en Colombia.
@@ -57,7 +57,7 @@ export default function App() {
             disabled={scanning}
             className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 px-4 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm shadow-lg shadow-emerald-600/20 disabled:opacity-50 shrink-0"
           >
-            {scanning ? '📡 Escaneando Colombia...' : '📡 Escanear Radar Nacional'}
+            {scanning ? ' Escaneando Colombia...' : '📡 Escanear Radar Nacional'}
           </button>
         </header>
 
@@ -65,7 +65,7 @@ export default function App() {
         {nationalAnomalies.length > 0 && (
           <section className="mb-8 bg-emerald-950/30 border border-emerald-800/60 rounded-2xl p-5 shadow-xl">
             <h3 className="text-base font-bold text-emerald-300 mb-3 flex items-center gap-2">
-              <span>🚨</span> Alertas Automáticas Detectadas en Colombia y Global
+              <span></span> Alertas Automáticas Detectadas en Colombia y Global
             </h3>
             <div className="space-y-3">
               {nationalAnomalies.map((anomaly, idx) => (
@@ -80,8 +80,8 @@ export default function App() {
                   </div>
                   <p className="text-slate-300 text-xs sm:text-sm mb-2">{anomaly.description}</p>
                   <div className="text-xs text-slate-400 flex gap-4">
-                    <span>📍 Lat: {anomaly.latitude}, Lng: {anomaly.longitude}</span>
-                    <span>🕒 {new Date(anomaly.timestamp).toLocaleTimeString()}</span>
+                    <span> Lat: {anomaly.latitude}, Lng: {anomaly.longitude}</span>
+                    <span> {new Date(anomaly.timestamp).toLocaleTimeString()}</span>
                   </div>
                 </div>
               ))}
@@ -119,9 +119,9 @@ export default function App() {
                   </div>
                   <p className="text-slate-200 text-sm mb-3">{report.description}</p>
                   <div className="text-xs text-slate-400 flex flex-wrap gap-4">
-                    <span>📍 Lat: {report.latitude}, Lng: {report.longitude}</span>
-                    <span>🏷️ Keywords: {report.keywords?.join(', ')}</span>
-                    <span>📅 {new Date(report.created_at).toLocaleString()}</span>
+                    <span> Lat: {report.latitude}, Lng: {report.longitude}</span>
+                    <span> Keywords: {report.keywords?.join(', ')}</span>
+                    <span>{new Date(report.created_at).toLocaleString()}</span>
                   </div>
                 </div>
               ))}
