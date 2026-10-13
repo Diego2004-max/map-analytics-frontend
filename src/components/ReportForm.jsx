@@ -1,135 +1,163 @@
 import React, { useState } from 'react';
+import { Send, MapPin, Sparkles, Navigation } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export function ReportForm({ onReportCreated }) {
-  const [description, setDescription] = useState('');
-  const [latitude, setLatitude] = useState('1.204265');
-  const [longitude, setLongitude] = useState('-77.295042');
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState(null);
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    category: 'Sismo / Geológico',
+    latitude: '1.204265',
+    longitude: '-77.295042'
+  });
+  const [loading, setLoading] = useState(false);
+  const [successMsg, setSuccessMsg] = useState('');
 
-  const handleGetGPS = () => {
+  const handleGPS = () => {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setLatitude(position.coords.latitude.toFixed(6));
-          setLongitude(position.coords.longitude.toFixed(6));
-        },
-        (err) => {
-          alert('No se pudo obtener la ubicación GPS: ' + err.message);
-        }
-      );
-    } else {
-      alert('La geolocalización no es compatible con este navegador.');
+      navigator.geolocation.getCurrentPosition((pos) => {
+        setFormData(prev => ({
+          ...prev,
+          latitude: pos.coords.latitude.toFixed(6),
+          longitude: pos.coords.longitude.toFixed(6)
+        }));
+      });
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!description.trim()) return;
-
-    setSubmitting(true);
-    setError(null);
-
+    setLoading(true);
+    setSuccessMsg('');
     try {
-      const response = await fetch(`${API_URL}/api/reports`, {
+      const res = await fetch(`${API_URL}/api/reports`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          description,
-          latitude: parseFloat(latitude),
-          longitude: parseFloat(longitude),
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Error al registrar el reporte');
+      const data = await res.json();
+      if (data.success || res.ok) {
+        setSuccessMsg('¡Anomalía registrada y clasificada por IA con éxito!');
+        setFormData({ title: '', description: '', category: 'Sismo / Geológico', latitude: '1.204265', longitude: '-77.295042' });
+        onReportCreated();
       }
-
-      setDescription('');
-      if (onReportCreated) {
-        onReportCreated(data.data);
-      }
-    } catch (err) {
-      setError(err.message);
+    } catch (error) {
+      console.error('Error al registrar:', error);
     } finally {
-      setSubmitting(false);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl mb-8">
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h3 className="text-lg font-bold text-white flex items-center gap-2">
-            <span>📝</span> Registrar Anomalía
-          </h3>
-          <p className="text-xs text-slate-400">Gemini clasifica automáticamente la anomalía en tiempo real.</p>
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-6 transition-all">
+      <div className="flex items-center justify-between mb-5 pb-4 border-b border-gray-100 dark:border-gray-700">
+        <div className="flex items-center space-x-3">
+          <div className="p-2.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl">
+            <Sparkles className="w-5 h-5" />
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white">Registrar Anomalía</h2>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Gemini clasifica automáticamente la anomalía en tiempo real.</p>
+          </div>
         </div>
         <button
           type="button"
-          onClick={handleGetGPS}
-          className="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold py-2 px-3 rounded-xl border border-slate-700 transition-colors flex items-center gap-1"
+          onClick={handleGPS}
+          className="flex items-center space-x-1.5 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg text-xs font-semibold transition-colors"
         >
-          <span>📍</span> Usar mi GPS
+          <Navigation className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+          <span>Usar mi GPS</span>
         </button>
       </div>
 
-      {error && (
-        <div className="mb-4 bg-red-950/50 border border-red-800 text-red-300 text-xs p-3 rounded-xl">
-          {error}
+      {successMsg && (
+        <div className="mb-4 p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 rounded-xl text-xs font-medium">
+          {successMsg}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-xs font-medium text-slate-300 mb-1">Descripción de la Anomalía</label>
-          <textarea
-            rows="3"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Ej: Sismo fuerte sentido en la región, deslizamiento de tierra en vía principal..."
-            className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-100 text-sm focus:outline-none focus:border-emerald-500 transition-colors resize-none"
+          <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-1.5">
+            Título del Reporte
+          </label>
+          <input
+            type="text"
             required
+            placeholder="Ej: Deslizamiento en vía Panamericana"
+            value={formData.title}
+            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
           />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1">Latitud</label>
-            <input
-              type="number"
-              step="any"
-              value={latitude}
-              onChange={(e) => setLatitude(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-100 text-sm focus:outline-none focus:border-emerald-500"
-              required
-            />
+            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-1.5">
+              Categoría
+            </label>
+            <select
+              value={formData.category}
+              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+            >
+              <option value="Sismo / Geológico">Sismo / Geológico</option>
+              <option value="Climatológico">Climatológico</option>
+              <option value="Infraestructura Vial">Infraestructura Vial</option>
+              <option value="Seguridad / Orden Público">Seguridad / Orden Público</option>
+            </select>
           </div>
-          <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1">Longitud</label>
-            <input
-              type="number"
-              step="any"
-              value={longitude}
-              onChange={(e) => setLongitude(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-100 text-sm focus:outline-none focus:border-emerald-500"
-              required
-            />
+
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-1.5">Latitud</label>
+              <input
+                type="text"
+                value={formData.latitude}
+                onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
+                className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-1.5">Longitud</label>
+              <input
+                type="text"
+                value={formData.longitude}
+                onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
+                className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+            </div>
           </div>
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-1.5">
+            Descripción Detallada
+          </label>
+          <textarea
+            required
+            rows="3"
+            placeholder="Describa los detalles de la anomalía observada..."
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all resize-none"
+          />
         </div>
 
         <button
           type="submit"
-          disabled={submitting}
-          className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 px-4 rounded-xl transition-colors shadow-lg shadow-blue-600/20 text-sm disabled:opacity-50"
+          disabled={loading}
+          className="w-full flex items-center justify-center space-x-2 py-3 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 transition-all transform active:scale-[0.99] disabled:opacity-50"
         >
-          {submitting ? 'Analizando con Gemini y Registrando...' : 'Analizar con IA y Registrar'}
+          {loading ? (
+            <span>Analizando con IA y Registrando...</span>
+          ) : (
+            <>
+              <Send className="w-4 h-4" />
+              <span>Analizar con IA y Registrar</span>
+            </>
+          )}
         </button>
       </form>
     </div>
