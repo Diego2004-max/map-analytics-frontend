@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Navbar } from './components/Navbar';
 import { ReportForm } from './components/ReportForm';
-import { Radar, ShieldAlert, CheckCircle2, RefreshCw, MapPin, ShieldCheck, Globe, AlertTriangle } from 'lucide-react';
+import { Radar, ShieldAlert, CheckCircle2, RefreshCw, MapPin, Globe, AlertTriangle } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -89,7 +89,7 @@ export default function App() {
     if (enColombia) {
       return "🇨🇴 Colombia (Territorio Nacional)";
     }
-    return `🌍 Ubicación Internacional (${la.toFixed(2)}, ${lo.toFixed(2)})`;
+    return ` Ubicación Internacional (${la.toFixed(2)}, ${lo.toFixed(2)})`;
   };
 
   useEffect(() => {
@@ -99,12 +99,11 @@ export default function App() {
   }, [user]);
 
   // ==========================================
-  // PANTALLA DE BIENVENIDA / AUTENTICACIÓN (REDISEÑADA Y ELEGANTE)
+  // PANTALLA DE BIENVENIDA / AUTENTICACIÓN
   // ==========================================
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 flex items-center justify-center p-4 relative overflow-hidden">
-        {/* Elementos decorativos de fondo */}
         <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-indigo-600/25 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -169,18 +168,26 @@ export default function App() {
           </div>
         </div>
 
-        {/* Resultados del Escaneo Satelital (Desglose Colombia vs Internacional) */}
+        {/* Resultados del Escaneo Satelital (Filtros Estrictos Separados: Colombia vs Internacional) */}
         {scanResult && (() => {
           const anomalias = scanResult.anomalies || scanResult.data || [];
           
+          // Filtro exclusivo para Colombia
           const colomAnomalies = anomalias.filter(a => {
             const la = parseFloat(a.latitude || 1.2);
             const lo = parseFloat(a.longitude || -77.2);
             return la >= -4.23 && la <= 12.46 && lo >= -79.0 && lo <= -66.85;
           });
 
+          // Filtro exclusivo para FUERA de Colombia (Internacional)
+          const interAnomalies = anomalias.filter(a => {
+            const la = parseFloat(a.latitude || 1.2);
+            const lo = parseFloat(a.longitude || -77.2);
+            return !(la >= -4.23 && la <= 12.46 && lo >= -79.0 && lo <= -66.85);
+          });
+
           return (
-            <div className="mb-8 bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-900/50 rounded-3xl p-6 shadow-xl space-y-4 animate-fadeIn">
+            <div className="mb-8 bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-900/50 rounded-3xl p-6 shadow-xl space-y-6 animate-fadeIn">
               <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-700">
                 <h3 className="text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 flex items-center gap-2">
                   <ShieldAlert className="w-5 h-5" /> Resultados del Análisis Satelital en Tiempo Real
@@ -190,53 +197,61 @@ export default function App() {
                 </span>
               </div>
 
-              {/* Estado en Colombia */}
+              {/* SECCIÓN 1: COLOMBIA ESTRICTO */}
               <div className="p-4 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700">
-                <h4 className="text-xs font-bold uppercase tracking-wide text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1.5">
+                <h4 className="text-xs font-bold uppercase tracking-wide text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1.5">
                   🇨🇴 Monitoreo en Colombia
                 </h4>
                 {colomAnomalies.length > 0 ? (
-                  <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-                    Se han detectado {colomAnomalies.length} anomalías activas en el territorio nacional de Colombia.
-                  </p>
+                  <div className="space-y-2">
+                    <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                      Se han detectado {colomAnomalies.length} anomalías activas en el territorio nacional de Colombia:
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+                      {colomAnomalies.map((item, index) => (
+                        <div key={index} className="p-2.5 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40 text-xs">
+                          <span className="font-bold text-emerald-800 dark:text-emerald-300">{item.title || 'Incidente en Colombia'}</span>
+                          <p className="text-gray-600 dark:text-gray-300 mt-0.5 line-clamp-1">{item.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 ) : (
                   <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 font-medium mt-1">
                     <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-                    <span>⚠️ En Colombia aún no se detecta ninguna anomalía ni incidente en este ciclo de escaneo.</span>
+                    <span>En Colombia aún no se detecta ninguna anomalía ni incidente en este ciclo de escaneo.</span>
                   </div>
                 )}
               </div>
 
-              {/* Detalle de hasta 5 anomalías internacionales / globales */}
+              {/* SECCIÓN 2: INTERNACIONAL ESTRICTO (Fuera de Colombia - Hasta 5) */}
               <div>
                 <h4 className="text-xs font-bold uppercase tracking-wide text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-1.5">
-                  🌍 Informes Globales / Internacionales (Mostrando hasta 5)
+                   Informes Globales / Otros Países (Mostrando hasta 5)
                 </h4>
-                {anomalias.length === 0 ? (
-                  <p className="text-xs text-gray-500">No hay datos de radar disponibles actualmente.</p>
+                {interAnomalies.length === 0 ? (
+                  <p className="text-xs text-gray-500">No hay informes internacionales en este escaneo.</p>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {anomalias.slice(0, 5).map((item, index) => {
+                    {interAnomalies.slice(0, 5).map((item, index) => {
                       const la = parseFloat(item.latitude || 0);
                       const lo = parseFloat(item.longitude || 0);
-                      const esColombia = la >= -4.23 && la <= 12.46 && lo >= -79.0 && lo <= -66.85;
-                      const ubicacionTexto = esColombia ? "🇨🇴 Territorio Nacional (Colombia)" : `🌍 Ubicación Global (${la.toFixed(2)}, ${lo.toFixed(2)})`;
                       
                       return (
                         <div key={index} className="p-3.5 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/30 flex flex-col justify-between">
                           <div>
                             <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">
-                              {item.category || 'Anomalía Detectada'}
+                              {item.category || 'Anomalía Internacional'}
                             </span>
                             <p className="text-xs font-semibold text-gray-900 dark:text-white mt-2">
-                              {item.title || item.description?.substring(0, 45) + '...' || 'Incidente satelital'}
+                              {item.title || item.description?.substring(0, 45) + '...' || 'Incidente externo'}
                             </p>
                             <p className="text-xs text-gray-600 dark:text-gray-300 mt-1 line-clamp-2">
                               {item.description || 'Sin descripción detallada.'}
                             </p>
                           </div>
                           <div className="mt-3 pt-2 border-t border-blue-100 dark:border-blue-900/40 text-[11px] font-medium text-blue-600 dark:text-blue-400">
-                            {ubicacionTexto}
+                            🌍 Ubicación Global ({la.toFixed(2)}, {lo.toFixed(2)})
                           </div>
                         </div>
                       );
