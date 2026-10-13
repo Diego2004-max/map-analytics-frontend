@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Navbar } from './components/Navbar';
 import { ReportForm } from './components/ReportForm';
-import { Radar, ShieldAlert, CheckCircle2, RefreshCw, MapPin, ShieldCheck } from 'lucide-react';
+import { Radar, ShieldAlert, CheckCircle2, RefreshCw, MapPin, ShieldCheck, Globe, AlertTriangle } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -45,7 +45,7 @@ export default function App() {
 
         window.google.accounts.id.renderButton(
           document.getElementById("welcome-google-btn"),
-          { theme: "outline", size: "large", width: "100%" }
+          { theme: "outline", size: "large", width: "100%", shape: "pill" }
         );
       } catch (err) {
         console.error("Error al inicializar botón de Google:", err);
@@ -98,33 +98,54 @@ export default function App() {
     }
   }, [user]);
 
-  // SI NO HAY USUARIO AUTENTICADO, MUESTRA LA PANTALLA DE BIENVENIDA OBLIGATORIA
+  // ==========================================
+  // PANTALLA DE BIENVENIDA / AUTENTICACIÓN (REDISEÑADA Y ELEGANTE)
+  // ==========================================
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-950 via-gray-900 to-indigo-950 flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-800 w-full max-w-md p-8 text-center animate-fadeIn">
-          <div className="inline-flex p-3.5 bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-2xl mb-4 shadow-inner">
-            <ShieldCheck className="w-10 h-10" />
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 flex items-center justify-center p-4 relative overflow-hidden">
+        {/* Elementos decorativos de fondo */}
+        <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-indigo-600/25 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl rounded-[2.5xl] shadow-2xl border border-white/20 dark:border-gray-800 w-full max-w-md p-8 sm:p-10 text-center relative z-10 transition-all">
+          <div className="inline-flex p-4 bg-gradient-to-tr from-blue-600 to-indigo-600 text-white rounded-3xl mb-5 shadow-lg shadow-blue-500/30">
+            <Globe className="w-8 h-8 animate-pulse" />
           </div>
-          <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white">Map Analytic AI</h1>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 mb-6">
-            Plataforma de inteligencia espacial y monitoreo de anomalías. Inicia sesión con Google para acceder al sistema.
-          </p>
           
-          <div className="flex justify-center w-full min-h-[45px]">
-            <div id="welcome-google-btn"></div>
+          <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-xs font-bold rounded-full uppercase tracking-wider">
+            Plataforma Segura AI
+          </span>
+
+          <h1 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white mt-3 tracking-tight">
+            Map Analytic AI
+          </h1>
+          
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mt-2.5 mb-8 leading-relaxed">
+            Centro de inteligencia espacial y monitoreo de anomalías en tiempo real. Autentícate con tu cuenta institucional de Google para continuar.
+          </p>
+
+          <div className="flex justify-center w-full min-h-[50px] relative">
+            <div id="welcome-google-btn" className="w-full flex justify-center"></div>
+          </div>
+
+          <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800 text-[11px] text-gray-400 dark:text-gray-500 font-medium">
+            Acceso autorizado para investigadores y auditores territoriales.
           </div>
         </div>
       </div>
     );
   }
 
-  // SI YA ESTÁ AUTENTICADO, MUESTRA EL PANEL COMPLETO
+  // ==========================================
+  // PANEL PRINCIPAL (AUTENTICADO)
+  // ==========================================
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
       <Navbar darkMode={darkMode} setDarkMode={setDarkMode} user={user} setUser={setUser} />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        {/* Banner de Radar */}
         <div className="mb-8 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
           <div className="relative z-10 max-w-xl text-center md:text-left">
@@ -148,22 +169,86 @@ export default function App() {
           </div>
         </div>
 
-        {scanResult && (
-          <div className="mb-8 bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-900/50 rounded-3xl p-5 shadow-lg">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 flex items-center gap-2">
-                <ShieldAlert className="w-4 h-4" /> Resultados Satelitales
-              </h3>
-              <span className="text-xs px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-semibold">
-                {scanResult.count} detectadas
-              </span>
-            </div>
-            <p className="text-xs text-gray-600 dark:text-gray-300">
-              Escaneo completado. Las anomalías territoriales se han auditado en tiempo real.
-            </p>
-          </div>
-        )}
+        {/* Resultados del Escaneo Satelital (Desglose Colombia vs Internacional) */}
+        {scanResult && (() => {
+          const anomalias = scanResult.anomalies || scanResult.data || [];
+          
+          const colomAnomalies = anomalias.filter(a => {
+            const la = parseFloat(a.latitude || 1.2);
+            const lo = parseFloat(a.longitude || -77.2);
+            return la >= -4.23 && la <= 12.46 && lo >= -79.0 && lo <= -66.85;
+          });
 
+          return (
+            <div className="mb-8 bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-900/50 rounded-3xl p-6 shadow-xl space-y-4 animate-fadeIn">
+              <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-700">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 flex items-center gap-2">
+                  <ShieldAlert className="w-5 h-5" /> Resultados del Análisis Satelital en Tiempo Real
+                </h3>
+                <span className="text-xs px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-semibold">
+                  {anomalias.length} totales detectadas
+                </span>
+              </div>
+
+              {/* Estado en Colombia */}
+              <div className="p-4 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700">
+                <h4 className="text-xs font-bold uppercase tracking-wide text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1.5">
+                  🇨🇴 Monitoreo en Colombia
+                </h4>
+                {colomAnomalies.length > 0 ? (
+                  <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                    Se han detectado {colomAnomalies.length} anomalías activas en el territorio nacional de Colombia.
+                  </p>
+                ) : (
+                  <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 font-medium mt-1">
+                    <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                    <span>⚠️ En Colombia aún no se detecta ninguna anomalía ni incidente en este ciclo de escaneo.</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Detalle de hasta 5 anomalías internacionales / globales */}
+              <div>
+                <h4 className="text-xs font-bold uppercase tracking-wide text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-1.5">
+                  🌍 Informes Globales / Internacionales (Mostrando hasta 5)
+                </h4>
+                {anomalias.length === 0 ? (
+                  <p className="text-xs text-gray-500">No hay datos de radar disponibles actualmente.</p>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {anomalias.slice(0, 5).map((item, index) => {
+                      const la = parseFloat(item.latitude || 0);
+                      const lo = parseFloat(item.longitude || 0);
+                      const esColombia = la >= -4.23 && la <= 12.46 && lo >= -79.0 && lo <= -66.85;
+                      const ubicacionTexto = esColombia ? "🇨🇴 Territorio Nacional (Colombia)" : `🌍 Ubicación Global (${la.toFixed(2)}, ${lo.toFixed(2)})`;
+                      
+                      return (
+                        <div key={index} className="p-3.5 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/30 flex flex-col justify-between">
+                          <div>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">
+                              {item.category || 'Anomalía Detectada'}
+                            </span>
+                            <p className="text-xs font-semibold text-gray-900 dark:text-white mt-2">
+                              {item.title || item.description?.substring(0, 45) + '...' || 'Incidente satelital'}
+                            </p>
+                            <p className="text-xs text-gray-600 dark:text-gray-300 mt-1 line-clamp-2">
+                              {item.description || 'Sin descripción detallada.'}
+                            </p>
+                          </div>
+                          <div className="mt-3 pt-2 border-t border-blue-100 dark:border-blue-900/40 text-[11px] font-medium text-blue-600 dark:text-blue-400">
+                            {ubicacionTexto}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* Grid de Formulario y Reportes */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           <div className="lg:col-span-5">
             <ReportForm onReportCreated={fetchReports} user={user} />
