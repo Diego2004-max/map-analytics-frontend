@@ -10,7 +10,7 @@ export function AuthModal({ isOpen, onClose, onLogin }) {
       if (window.google && document.getElementById("google-signin-btn")) {
         try {
           window.google.accounts.id.initialize({
-            client_id: "756822032174-lb6mm8kg6qasoabcdhdvuq4lufi8uhh0.apps.googleusercontent.com",
+            client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
             callback: (response) => {
               const base64Url = response.credential.split('.')[1];
               const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');

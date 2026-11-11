@@ -25,7 +25,7 @@ export default function App() {
     if (!user && window.google) {
       try {
         window.google.accounts.id.initialize({
-          client_id: "756822032174-lb6mm8kg6qasoabcdhdvuq4lufi8uhh0.apps.googleusercontent.com",
+          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
           callback: (response) => {
             const base64Url = response.credential.split('.')[1];
             const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -155,7 +155,8 @@ export default function App() {
 
         {/* Resultados del Escaneo Satelital */}
         {scanResult && (() => {
-          const anomalias = scanResult.anomalies || scanResult.data || [];
+          const anomalias = scanResult.data?.national || [];
+          const internationalAnomalies = scanResult.data?.international || [];
           
           const colomAnomalies = anomalias.filter(a => {
             const la = parseFloat(a.latitude || 1.2);
@@ -163,7 +164,7 @@ export default function App() {
             return la >= -4.23 && la <= 12.46 && lo >= -79.0 && lo <= -66.85;
           });
 
-          const interAnomalies = anomalias.filter(a => {
+          const interAnomalies = internationalAnomalies.filter(a => {
             const la = parseFloat(a.latitude || 1.2);
             const lo = parseFloat(a.longitude || -77.2);
             return !(la >= -4.23 && la <= 12.46 && lo >= -79.0 && lo <= -66.85);
@@ -176,7 +177,7 @@ export default function App() {
                   <ShieldAlert className="w-4 h-4 flex-shrink-0" /> Resultados del Análisis Satelital
                 </h3>
                 <span className="self-start sm:self-auto text-xs px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-semibold">
-                  {anomalias.length} detectadas
+                  {anomalias.length + interAnomalies.length} detectadas
                 </span>
               </div>
 
