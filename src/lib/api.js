@@ -16,6 +16,7 @@ export const api = {
   deleteReport: (id) => request(`/reports/${id}`, { method: 'DELETE' }),
   warmUp: () => fetch(`${serviceUrl}/api/health`, { signal: AbortSignal.timeout(45_000) }),
   getReports: () => request('/reports'),
+  getReportStats: () => request('/reports/stats'),
   createReport: ({ attachments = [], ...report }) => {
     const body = new FormData();
     Object.entries(report).forEach(([key, value]) => body.append(key, String(value)));
