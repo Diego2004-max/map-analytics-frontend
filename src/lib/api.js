@@ -2,7 +2,7 @@ const configuredUrl = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE
 const baseUrl = configuredUrl.endsWith('/api/v1') ? configuredUrl : `${configuredUrl}/api/v1`;
 
 async function request(path, options) {
-  const response = await fetch(`${baseUrl}${path}`, options);
+  const response = await fetch(`${baseUrl}${path}`, { ...options, signal: AbortSignal.timeout(45_000) });
   const body = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(body.error || 'No fue posible completar la solicitud.');
   return body;
@@ -10,9 +10,15 @@ async function request(path, options) {
 
 export const api = {
   getReports: () => request('/reports'),
-  createReport: (report) => request('/reports', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(report) }),
+  createReport: ({ attachments = [], ...report }) => {
+    const body = new FormData();
+    Object.entries(report).forEach(([key, value]) => body.append(key, String(value)));
+    attachments.forEach((file) => body.append('attachments', file));
+    return request('/reports', { method: 'POST', body });
+  },
   scanRadar: () => request('/monitor/scan'),
   verifyGoogleCredential: (credential) => request('/auth/google', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ credential }) }),
   login: (email, password) => request('/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) }),
-  register: (name, email, password) => request('/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, email, password }) })
+  register: (name, email, password) => request('/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, email, password }) }),
+  attachmentUrl: (url) => `${baseUrl.replace(/\/api\/v1$/, '')}${url}`
 };
