@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { AuthCard } from './components/AuthCard';
 import { ReportForm } from './components/ReportForm';
 import { api } from './lib/api';
+import { AnalyticsPanel } from './components/AnalyticsPanel';
 
 const dateTime = new Intl.DateTimeFormat('es-CO', { dateStyle: 'medium', timeStyle: 'short' });
 const severityClasses = { HIGH: 'bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-300', MEDIUM: 'bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300', LOW: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300' };
@@ -22,6 +23,7 @@ export default function App() {
   if (!user) return <main className="min-h-screen bg-slate-50 px-4 py-10 text-slate-900 transition-colors dark:bg-slate-950 dark:text-slate-100 sm:px-6"><div className="mx-auto mb-6 flex max-w-md justify-end"><ThemeButton dark={dark} onClick={changeTheme}/></div><div className="grid place-items-center"><AuthCard onAuthenticated={authenticate} dark={dark}/></div></main>;
   return <main className="min-h-screen bg-slate-50 p-4 text-slate-900 transition-colors dark:bg-slate-950 dark:text-slate-100 sm:p-8"><div className="mx-auto max-w-6xl"><header className="mb-8 flex flex-col gap-4 border-b border-slate-200 pb-6 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-center gap-3"><span className="rounded-2xl bg-blue-700 p-3 text-white shadow-lg shadow-blue-500/20"><Activity size={24}/></span><div><h1 className="text-2xl font-black">Map Analytic AI</h1><p className="text-sm text-slate-500 dark:text-slate-400">Hola, {user.name}</p></div></div><div className="flex flex-wrap gap-2"><ThemeButton dark={dark} onClick={changeTheme}/><button onClick={signOut} className="rounded-xl border border-slate-300 p-2.5 hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800" aria-label="Cerrar sesión"><LogOut size={18}/></button><button onClick={scanRadar} disabled={scanning} className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-600 disabled:opacity-50"><Radar size={18}/>{scanning ? 'Consultando fuente…' : 'Escanear radar'}</button></div></header>
   {error && <p role="alert" className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">{error}</p>}
+  <AnalyticsPanel reports={reports} scan={scan} loading={loading}/>
   {scan && <RadarResults scan={scan}/>}<div className="grid gap-8 lg:grid-cols-[minmax(340px,.85fr)_minmax(0,1.15fr)]"><ReportForm onReportCreated={(report) => setReports((current) => [report, ...current])}/><ReportList reports={reports} loading={loading} onRefresh={loadReports}/></div></div></main>;
 }
 
