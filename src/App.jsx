@@ -1,20 +1,21 @@
 import { Activity, Image as ImageIcon, LogOut, Moon, Radar, RefreshCw, Sun, Volume2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
-import { AuthCard } from './components/AuthCard';
+import { AuthExperience } from './components/AuthExperience';
 import { ReportForm } from './components/ReportForm';
 import { api } from './lib/api';
 import { AnalyticsPanel } from './components/AnalyticsPanel';
 import { CommunityReports } from './components/CommunityReports';
+import { MonitoringCenter } from './components/MonitoringCenter';
 
 const dateTime = new Intl.DateTimeFormat('es-CO', { dateStyle: 'medium', timeStyle: 'short' });
 const severityClasses = { HIGH: 'bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-300', MEDIUM: 'bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300', LOW: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300' };
 
 export default function App() {
   const [user, setUser] = useState(() => JSON.parse(sessionStorage.getItem('map-analytic-user') || 'null'));
-  const [reports, setReports] = useState([]); const [loading, setLoading] = useState(false); const [error, setError] = useState(''); const [scan, setScan] = useState(null); const [scanning, setScanning] = useState(false); const [serviceStatus, setServiceStatus] = useState('checking'); const [theme, setTheme] = useState(() => localStorage.getItem('map-analytic-theme') || 'light');
+  const [reports, setReports] = useState([]); const [loading, setLoading] = useState(false); const [error, setError] = useState(''); const [scan, setScan] = useState(null); const [scanning, setScanning] = useState(false); const [serviceStatus, setServiceStatus] = useState('checking'); const [health, setHealth] = useState(null); const [theme, setTheme] = useState(() => localStorage.getItem('map-analytic-theme') || 'light');
   const dark = theme === 'dark';
   const loadReports = useCallback(async () => { setLoading(true); try { const result = await api.getReports(); setReports(result.data || []); setError(''); } catch (requestError) { setError(requestError.message); } finally { setLoading(false); } }, []);
-  useEffect(() => { api.warmUp().then((response) => setServiceStatus(response.ok ? 'online' : 'degraded')).catch(() => setServiceStatus('offline')); }, []);
+  useEffect(() => { const refresh = () => api.health().then((data) => { setHealth(data); setServiceStatus('online'); }).catch(() => setServiceStatus('offline')); refresh(); const timer = setInterval(refresh, 30_000); return () => clearInterval(timer); }, []);
   useEffect(() => { if (user) loadReports(); }, [user, loadReports]);
   useEffect(() => { document.documentElement.classList.toggle('dark', dark); localStorage.setItem('map-analytic-theme', theme); }, [dark, theme]);
   const authenticate = useCallback((session) => { sessionStorage.setItem('map-analytic-session', JSON.stringify(session)); sessionStorage.setItem('map-analytic-user', JSON.stringify(session.user)); setUser(session.user); }, []);
@@ -22,10 +23,10 @@ export default function App() {
   const scanRadar = useCallback(async () => { setScanning(true); setError(''); try { const result = await api.scanRadar(); setScan(result.data); } catch (requestError) { setError(requestError.message); } finally { setScanning(false); } }, []);
   useEffect(() => { if (user) scanRadar(); }, [user, scanRadar]);
   const changeTheme = () => setTheme(dark ? 'light' : 'dark');
-  if (!user) return <main className="app-shell min-h-screen px-4 py-8 text-slate-900 transition-colors dark:bg-slate-950 dark:text-slate-100 sm:px-6"><div className="mx-auto mb-6 flex max-w-lg justify-end"><ThemeButton dark={dark} onClick={changeTheme}/></div><div className="grid place-items-center"><AuthCard onAuthenticated={authenticate} dark={dark}/></div></main>;
+  if (!user) return <main className="app-shell min-h-screen px-4 py-6 text-slate-900 transition-colors dark:text-slate-100 sm:px-6"><div className="mx-auto mb-5 flex max-w-6xl justify-end"><ThemeButton dark={dark} onClick={changeTheme}/></div><AuthExperience onAuthenticated={authenticate} dark={dark}/></main>;
   return <main className="app-shell min-h-screen p-4 text-slate-900 transition-colors dark:bg-slate-950 dark:text-slate-100 sm:p-8"><div className="mx-auto max-w-6xl"><header className="mb-8 flex flex-col gap-4 border-b border-slate-200 pb-6 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-center gap-3"><span className="rounded-2xl bg-blue-700 p-3 text-white shadow-lg shadow-blue-500/20"><Activity size={24}/></span><div><div className="flex items-center gap-2"><h1 className="text-2xl font-black">Map Analytic AI</h1><span className={`h-2 w-2 rounded-full ${serviceStatus === 'online' ? 'bg-emerald-500' : serviceStatus === 'degraded' ? 'bg-amber-500' : serviceStatus === 'offline' ? 'bg-red-500' : 'animate-pulse bg-slate-400'}`} title={`Backend: ${serviceStatus}`}/></div><p className="text-sm text-slate-500 dark:text-slate-400">Hola, {user.name}</p></div></div><div className="flex flex-wrap gap-2"><ThemeButton dark={dark} onClick={changeTheme}/><button onClick={signOut} className="rounded-xl border border-slate-300 p-2.5 hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800" aria-label="Cerrar sesión"><LogOut size={18}/></button><button onClick={scanRadar} disabled={scanning} className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-600 disabled:opacity-50"><Radar size={18}/>{scanning ? 'Consultando fuente…' : 'Escanear radar'}</button></div></header>
   {error && <p role="alert" className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">{error}</p>}
-  <AnalyticsPanel reports={reports} scan={scan} loading={loading} scanning={scanning}/>
+  <MonitoringCenter health={health} serviceStatus={serviceStatus} scan={scan} reports={reports}/><AnalyticsPanel reports={reports} scan={scan} loading={loading} scanning={scanning}/>
   {scan && <RadarResults scan={scan}/>}<div className="grid gap-8 lg:grid-cols-[minmax(340px,.85fr)_minmax(0,1.15fr)]"><ReportForm onReportCreated={(report) => setReports((current) => [report, ...current])}/><ReportList reports={reports} loading={loading} onRefresh={loadReports}/></div><CommunityReports reports={reports} user={user} onDeleted={(id) => setReports(current => current.filter(report => report.id !== id))}/></div></main>;
 }
 

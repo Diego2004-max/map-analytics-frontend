@@ -12,6 +12,7 @@ async function request(path, options) {
 }
 
 export const api = {
+  health: async () => { const response = await fetch(`${serviceUrl}/api/health`, { signal: AbortSignal.timeout(45_000) }); const body = await response.json().catch(() => ({})); if (!response.ok) throw new Error(body.error || 'Servicio no disponible'); return body; },
   deleteReport: (id) => request(`/reports/${id}`, { method: 'DELETE' }),
   warmUp: () => fetch(`${serviceUrl}/api/health`, { signal: AbortSignal.timeout(45_000) }),
   getReports: () => request('/reports'),
