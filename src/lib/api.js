@@ -25,6 +25,7 @@ export const api = {
   },
   scanRadar: () => request('/monitor/scan'),
   verifyGoogleCredential: (credential) => request('/auth/google', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ credential }) }),
+  currentUser: () => request('/auth/me'),
   login: (email, password) => request('/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) }),
   register: (name, email, password) => request('/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, email, password }) }),
   attachmentUrl: (url) => `${baseUrl.replace(/\/api\/v1$/, '')}${url}`
