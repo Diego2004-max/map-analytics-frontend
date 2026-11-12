@@ -21,5 +21,5 @@ export function GoogleSignIn({ onAuthenticated }) {
     else { const script = document.createElement('script'); script.src = 'https://accounts.google.com/gsi/client'; script.async = true; script.dataset.googleIdentity = 'true'; script.addEventListener('load', render, { once: true }); script.addEventListener('error', () => setError('No fue posible cargar Google. Revisa la conexión y el origen autorizado.')); document.head.append(script); }
     return undefined;
   }, [onAuthenticated]);
-  return <><div ref={container} className="mt-2 flex min-h-11 w-full justify-center overflow-hidden"/>{error && <p role="alert" className="mt-4 text-center text-sm text-red-500">{error}</p>}</>;
+  return <><div ref={container} className="mt-2 flex min-h-12 w-full justify-center overflow-hidden [&>div]:w-full [&>div>div]:w-full"/>{error && <p role="alert" className="mt-4 text-center text-sm text-red-500">{error}</p>}</>;
 }

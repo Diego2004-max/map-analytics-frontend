@@ -34,6 +34,9 @@
 .app-shell .grid { align-items: start; }
 .app-shell section.max-w-md { max-width: 38rem; }
 .app-shell section.max-w-md > div:first-child { padding-block: 1.5rem; }
+.app-shell section.max-w-md { box-shadow: 0 24px 70px rgb(15 23 42 / .16); }
+.app-shell section.max-w-md > div:last-child { background: #ffffff; }
+.dark .app-shell section.max-w-md > div:last-child { background: #111b2e; }
 .app-shell section.max-w-md h1 { font-size: 2rem; }
 .app-shell button, .app-shell a { transition: background-color .18s, box-shadow .18s; }
 .app-shell :is(button, input, select, textarea):focus-visible { outline: 2px solid #75a0ec; outline-offset: 3px; }
