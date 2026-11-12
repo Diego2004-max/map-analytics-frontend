@@ -12,6 +12,7 @@ export default function App() {
   const [reports, setReports] = useState([]); const [loading, setLoading] = useState(false); const [error, setError] = useState(''); const [scan, setScan] = useState(null); const [scanning, setScanning] = useState(false); const [theme, setTheme] = useState(() => localStorage.getItem('map-analytic-theme') || 'light');
   const dark = theme === 'dark';
   const loadReports = useCallback(async () => { setLoading(true); try { const result = await api.getReports(); setReports(result.data || []); setError(''); } catch (requestError) { setError(requestError.message); } finally { setLoading(false); } }, []);
+  useEffect(() => { api.warmUp().catch(() => undefined); }, []);
   useEffect(() => { if (user) loadReports(); }, [user, loadReports]);
   useEffect(() => { document.documentElement.classList.toggle('dark', dark); localStorage.setItem('map-analytic-theme', theme); }, [dark, theme]);
   const authenticate = useCallback((session) => { sessionStorage.setItem('map-analytic-session', JSON.stringify(session)); sessionStorage.setItem('map-analytic-user', JSON.stringify(session.user)); setUser(session.user); }, []);

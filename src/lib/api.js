@@ -1,5 +1,6 @@
 const configuredUrl = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1').replace(/\/$/, '');
 const baseUrl = configuredUrl.endsWith('/api/v1') ? configuredUrl : `${configuredUrl}/api/v1`;
+const serviceUrl = baseUrl.replace(/\/api\/v1$/, '');
 
 async function request(path, options) {
   const response = await fetch(`${baseUrl}${path}`, { ...options, signal: AbortSignal.timeout(45_000) });
@@ -9,6 +10,7 @@ async function request(path, options) {
 }
 
 export const api = {
+  warmUp: () => fetch(`${serviceUrl}/api/health`, { signal: AbortSignal.timeout(45_000) }),
   getReports: () => request('/reports'),
   createReport: ({ attachments = [], ...report }) => {
     const body = new FormData();
