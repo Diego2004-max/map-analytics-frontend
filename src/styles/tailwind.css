@@ -41,6 +41,8 @@
 .app-shell button, .app-shell a { transition: background-color .18s, box-shadow .18s; }
 .app-shell :is(button, input, select, textarea):focus-visible { outline: 2px solid #75a0ec; outline-offset: 3px; }
 .app-shell .g_id_signin, .app-shell .g_id_signin iframe { width: 100% !important; min-height: 48px; }
+.app-shell article { contain: layout paint; }
+.app-shell .space-y-3 > article:nth-child(n+8) { content-visibility: auto; contain-intrinsic-size: 180px; }
 .app-shell audio { max-width: 100%; }
 .dark input:-webkit-autofill { -webkit-box-shadow: 0 0 0 1000px #1a2523 inset; }
 
