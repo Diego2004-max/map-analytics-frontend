@@ -2,13 +2,13 @@ import { Activity, Clock3, Database, Radio, ShieldCheck } from 'lucide-react';
 
 const statusText = { online: 'Operativo', degraded: 'Degradado', offline: 'Sin conexión', checking: 'Verificando' };
 
-export function MonitoringCenter({ health, serviceStatus, scan, reports }) {
+export function MonitoringCenter({ health, serviceStatus, scan, reports, reportStats }) {
   const events = (scan?.national?.length || 0) + (scan?.international?.length || 0);
   const items = [
     { icon: Activity, label: 'API principal', value: statusText[serviceStatus], tone: serviceStatus === 'online' ? 'text-cyan-600 dark:text-cyan-300' : 'text-amber-600' },
     { icon: Database, label: 'Base de datos', value: health?.database === 'ready' ? 'Disponible' : 'Verificando', tone: 'text-sky-600 dark:text-sky-300' },
     { icon: Radio, label: 'Eventos sísmicos', value: scan ? `${events} detectados` : 'Consultando', tone: 'text-indigo-600 dark:text-indigo-300' },
-    { icon: ShieldCheck, label: 'Reportes activos', value: `${reports.length} vigentes`, tone: 'text-violet-600 dark:text-violet-300' }
+    { icon: ShieldCheck, label: 'Reportes activos', value: `${reportStats?.total ?? reports.length} vigentes`, tone: 'text-violet-600 dark:text-violet-300' }
   ];
   return <section aria-label="Centro de monitoreo" className="mb-8 overflow-hidden rounded-3xl border border-slate-200 bg-white/90 shadow-sm backdrop-blur dark:border-slate-700 dark:bg-slate-900/85">
     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-5 py-4 dark:border-slate-700"><div><p className="text-xs font-bold uppercase tracking-[.18em] text-cyan-700 dark:text-cyan-300">Operación en vivo</p><h2 className="mt-1 text-xl font-bold">Centro de monitoreo territorial</h2></div><span className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 text-xs dark:bg-slate-800"><Clock3 size={14}/>{health?.latencyMs != null ? `${health.latencyMs} ms` : 'Conectando'}</span></div>
