@@ -2,6 +2,44 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
+  --color-slate-950: #101817;
+  --color-slate-900: #1a2523;
+  --color-slate-800: #2a3834;
+  --color-slate-700: #41534c;
+  --color-slate-500: #687e75;
+  --color-slate-400: #9aafa5;
+  --color-slate-50: #f3f6f2;
+  --color-blue-700: #116957;
+  --color-blue-600: #187e69;
+  --color-blue-500: #299b83;
+  --color-blue-400: #67cbb2;
+  --color-blue-100: #d8eee5;
+  --color-blue-50: #edf7f1;
+  --color-indigo-700: #28483e;
+}
+
+:root { color-scheme: light; }
+:root.dark { color-scheme: dark; }
+.app-shell.app-shell {
+  background-color: #edf2ec;
+  background-image: radial-gradient(ellipse at 5% 10%, #b6d9c680, transparent 55%), repeating-radial-gradient(ellipse at 100% 0, transparent 0 58px, #6d958514 59px 60px);
+  background-size: auto;
+}
+.dark .app-shell.app-shell {
+  background-color: #101817;
+  background-image: radial-gradient(ellipse at 0 0, #285c454d, transparent 55%), repeating-radial-gradient(ellipse at 100% 0, transparent 0 58px, #8db6a20d 59px 60px);
+}
+.app-shell form { align-self: start; }
+.app-shell .grid { align-items: start; }
+.app-shell section.max-w-md { max-width: 38rem; }
+.app-shell section.max-w-md > div:first-child { padding-block: 1.5rem; }
+.app-shell section.max-w-md h1 { font-size: 2rem; }
+.app-shell button, .app-shell a { transition: background-color .18s, box-shadow .18s; }
+.app-shell :is(button, input, select, textarea):focus-visible { outline: 2px solid #67cbb2; outline-offset: 3px; }
+.app-shell audio { max-width: 100%; }
+.dark input:-webkit-autofill { -webkit-box-shadow: 0 0 0 1000px #1a2523 inset; }
+
 @layer base {
   body { min-width: 320px; background: #f8fafc; }
   .dark body { background: #020617; }
