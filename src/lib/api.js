@@ -2,12 +2,15 @@ const configuredUrl = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE
 const baseUrl = configuredUrl.endsWith('/api/v1') ? configuredUrl : `${configuredUrl}/api/v1`;
 const serviceUrl = baseUrl.replace(/\/api\/v1$/, '');
 
+export class ApiError extends Error {
+  constructor(message, status, requestId) { super(message); this.name = 'ApiError'; this.status = status; this.requestId = requestId; }
+}
 async function request(path, options) {
   let token;
   try { token = JSON.parse(sessionStorage.getItem('map-analytic-session') || 'null')?.token; } catch {}
   const response = await fetch(`${baseUrl}${path}`, { ...options, headers: { ...options?.headers, ...(token ? { Authorization: `Bearer ${token}` } : {}) }, signal: AbortSignal.timeout(45_000) });
   const body = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(body.error || (response.status === 503 ? 'El servidor está iniciando. Inténtalo en unos segundos.' : 'No fue posible completar la solicitud.'));
+  if (!response.ok) throw new ApiError(body.error || (response.status === 503 ? 'El servidor está iniciando. Inténtalo en unos segundos.' : 'No fue posible completar la solicitud.'), response.status, response.headers.get('x-request-id') || body.requestId);
   return body;
 }
 
