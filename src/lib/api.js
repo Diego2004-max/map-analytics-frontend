@@ -3,13 +3,16 @@ const baseUrl = configuredUrl.endsWith('/api/v1') ? configuredUrl : `${configure
 const serviceUrl = baseUrl.replace(/\/api\/v1$/, '');
 
 async function request(path, options) {
-  const response = await fetch(`${baseUrl}${path}`, { ...options, signal: AbortSignal.timeout(45_000) });
+  let token;
+  try { token = JSON.parse(sessionStorage.getItem('map-analytic-session') || 'null')?.token; } catch {}
+  const response = await fetch(`${baseUrl}${path}`, { ...options, headers: { ...options?.headers, ...(token ? { Authorization: `Bearer ${token}` } : {}) }, signal: AbortSignal.timeout(45_000) });
   const body = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(body.error || (response.status === 503 ? 'El servidor está iniciando. Inténtalo en unos segundos.' : 'No fue posible completar la solicitud.'));
   return body;
 }
 
 export const api = {
+  deleteReport: (id) => request(`/reports/${id}`, { method: 'DELETE' }),
   warmUp: () => fetch(`${serviceUrl}/api/health`, { signal: AbortSignal.timeout(45_000) }),
   getReports: () => request('/reports'),
   createReport: ({ attachments = [], ...report }) => {
