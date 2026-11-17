@@ -17,7 +17,6 @@ export function CommunityReports({ reports, user, onDeleted }) {
     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{reports.map(report => <article key={report.id} className="rounded-xl border border-slate-200 p-4 dark:border-slate-700">
       <div className="mb-3 flex items-center justify-between gap-2"><span className="text-xs text-slate-500">{Number(report.owner_id) === Number(user.id) ? 'Tu reporte' : 'Reporte de la comunidad'}</span><span className="text-xs font-semibold">{{ HIGH: 'Prioridad alta', MEDIUM: 'Prioridad media', LOW: 'Prioridad baja' }[report.severity] || 'Sin clasificar'}</span></div>
       <h3 className="font-semibold">{report.category}</h3><p className="my-2 break-words text-sm">{report.description}</p>
-      <p className="mb-2 text-xs text-slate-500">Clasificación automática orientativa · Requiere verificación en campo</p>
       <time className="text-xs text-slate-500">{new Date(report.created_at).toLocaleString('es-CO')}</time>
       {Number(report.owner_id) === Number(user.id) && <button disabled={busy !== null} onClick={() => remove(report.id)} className="mt-3 block rounded-lg border border-red-400 px-3 py-2 text-sm text-red-500 disabled:opacity-50">{busy === report.id ? 'Eliminando…' : 'Eliminar mi reporte'}</button>}
     </article>)}</div>
