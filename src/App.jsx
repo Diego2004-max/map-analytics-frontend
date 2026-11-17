@@ -8,12 +8,13 @@ import { CommunityReports } from './components/CommunityReports';
 import { MonitoringCenter } from './components/MonitoringCenter';
 import { OperationsMetrics } from './components/OperationsMetrics';
 import { LiveSituationBoard } from './components/LiveSituationBoard';
+import { clearSession, readStoredUser } from './lib/session';
 
 const dateTime = new Intl.DateTimeFormat('es-CO', { dateStyle: 'medium', timeStyle: 'short' });
 const severityClasses = { HIGH: 'bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-300', MEDIUM: 'bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300', LOW: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300' };
 
 export default function App() {
-  const [user, setUser] = useState(() => JSON.parse(sessionStorage.getItem('map-analytic-user') || 'null'));
+  const [user, setUser] = useState(readStoredUser);
   const [reports, setReports] = useState([]); const [reportStats, setReportStats] = useState(null); const [loading, setLoading] = useState(false); const [error, setError] = useState(''); const [scan, setScan] = useState(null); const [scanning, setScanning] = useState(false); const [serviceStatus, setServiceStatus] = useState('checking'); const [health, setHealth] = useState(null); const [theme, setTheme] = useState(() => localStorage.getItem('map-analytic-theme') || 'light');
   const dark = theme === 'dark';
   const loadReports = useCallback(async () => { setLoading(true); try { const [result, stats] = await Promise.all([api.getReports(), api.getReportStats()]); setReports(result.data || []); setReportStats(stats.data || null); setError(''); } catch (requestError) { setError(requestError.message); } finally { setLoading(false); } }, []);
@@ -23,7 +24,7 @@ export default function App() {
   useEffect(() => { if (!user) return undefined; const timer = setInterval(loadReports, 60_000); return () => clearInterval(timer); }, [user, loadReports]);
   useEffect(() => { document.documentElement.classList.toggle('dark', dark); localStorage.setItem('map-analytic-theme', theme); }, [dark, theme]);
   const authenticate = useCallback((session) => { sessionStorage.setItem('map-analytic-session', JSON.stringify(session)); sessionStorage.setItem('map-analytic-user', JSON.stringify(session.user)); setUser(session.user); }, []);
-  const signOut = () => { sessionStorage.removeItem('map-analytic-session'); sessionStorage.removeItem('map-analytic-user'); setUser(null); };
+  const signOut = () => { clearSession(); setUser(null); };
   const scanRadar = useCallback(async () => { setScanning(true); setError(''); try { const result = await api.scanRadar(); setScan(result.data); const national = result.data?.national || []; if (national.length && 'Notification' in window && Notification.permission === 'granted') new Notification('Actividad sísmica en Colombia', { body: `${national.length} evento(s) detectado(s) por el radar oficial.`, tag: 'map-analytic-colombia' }); } catch (requestError) { setError(requestError.message); } finally { setScanning(false); } }, []);
   const enableAlerts = async () => { if ('Notification' in window && Notification.permission === 'default') await Notification.requestPermission(); };
   useEffect(() => { if (user) scanRadar(); }, [user, scanRadar]);
