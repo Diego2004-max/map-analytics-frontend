@@ -3,15 +3,15 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-slate-950: #080f1e;
-  --color-slate-900: #111b2e;
-  --color-slate-800: #1e2b43;
-  --color-slate-700: #34445f;
+  --color-slate-950: #14181b;
+  --color-slate-900: #1d2429;
+  --color-slate-800: #2b353c;
+  --color-slate-700: #46565f;
   --color-slate-500: #64748b;
   --color-slate-400: #94a3b8;
   --color-slate-50: #f6f8fb;
-  --color-blue-700: #2348a6;
-  --color-blue-600: #315fc6;
+  --color-blue-700: #17616d;
+  --color-blue-600: #207887;
   --color-blue-500: #4778db;
   --color-blue-400: #75a0ec;
   --color-blue-100: #dce8fa;
@@ -30,14 +30,31 @@
   background-color: #080f1e;
   background-image: radial-gradient(ellipse at 0 0, #244b8d4d, transparent 55%), repeating-radial-gradient(ellipse at 100% 0, transparent 0 58px, #8da7d00d 59px 60px);
 }
-.dark .app-shell.app-shell { background-image: radial-gradient(circle at 15% 0%, #2f5fb855, transparent 34rem), radial-gradient(circle at 90% 22%, #155e7590, transparent 30rem), repeating-linear-gradient(115deg, transparent 0 38px, #6f8db31f 39px 40px), linear-gradient(90deg, #4b63861c 1px, transparent 1px), linear-gradient(#4b63861c 1px, transparent 1px); background-size: auto, auto, auto, 48px 48px, 48px 48px; }
+.dark .app-shell.app-shell {
+  background-color: #14181b;
+  background-image: repeating-radial-gradient(circle at 85% 20%, transparent 0 110px, #91b9b51f 111px 112px), conic-gradient(from 210deg at 85% 20%, transparent 0deg 285deg, #67b8a918 320deg, transparent 321deg), radial-gradient(ellipse at 85% 20%, #28433e80, transparent 65%);
+  background-size: auto;
+  background-attachment: fixed;
+}
+.app-shell section.max-w-md > div:first-child {
+  background: radial-gradient(circle at 85% 15%, #b7d9d377, transparent 60%), linear-gradient(135deg, #e5efec, #f5f2e9);
+  color: #253d40;
+  border-bottom: 1px solid #cbdcda;
+}
+.app-shell section.max-w-md > div:first-child p { color: #476365; }
+.dark .app-shell section.max-w-md > div:first-child {
+  background: radial-gradient(circle at 85% 15%, #5d94803b, transparent 60%), linear-gradient(135deg, #243634, #20272c);
+  color: #f0f5f3;
+  border-bottom-color: #46565f;
+}
+.dark .app-shell section.max-w-md > div:first-child p { color: #c2d8d3; }
 .app-shell form { align-self: start; }
 .app-shell .grid { align-items: start; }
 .app-shell section.max-w-md { max-width: 38rem; }
 .app-shell section.max-w-md > div:first-child { padding-block: 1.5rem; }
 .app-shell section.max-w-md { box-shadow: 0 24px 70px rgb(15 23 42 / .16); }
 .app-shell section.max-w-md > div:last-child { background: #ffffff; }
-.dark .app-shell section.max-w-md > div:last-child { background: #111b2e; }
+.dark .app-shell section.max-w-md > div:last-child { background: #1d2429; }
 .app-shell section.max-w-md h1 { font-size: 2rem; }
 .app-shell button, .app-shell a { transition: background-color .18s, box-shadow .18s; }
 .app-shell :is(button, input, select, textarea):focus-visible { outline: 2px solid #75a0ec; outline-offset: 3px; }
