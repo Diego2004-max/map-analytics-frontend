@@ -19,7 +19,7 @@ export default function App() {
   const dark = theme === 'dark';
   const loadReports = useCallback(async () => { setLoading(true); try { const [result, stats] = await Promise.all([api.getReports(), api.getReportStats()]); setReports(result.data || []); setReportStats(stats.data || null); setError(''); } catch (requestError) { setError(requestError.message); } finally { setLoading(false); } }, []);
   useEffect(() => { const refresh = () => api.health().then((data) => { setHealth(data); setServiceStatus('online'); }).catch(() => setServiceStatus('offline')); refresh(); const timer = setInterval(refresh, 30_000); return () => clearInterval(timer); }, []);
-  useEffect(() => { if (!user) return; api.currentUser().then((result) => { setUser(result.data); sessionStorage.setItem('map-analytic-user', JSON.stringify(result.data)); }).catch(() => signOut()); }, []);
+  useEffect(() => { if (!user) return; api.currentUser().then((result) => { setUser(result.data); sessionStorage.setItem('map-analytic-user', JSON.stringify(result.data)); }).catch((error) => { if (error.status === 401) signOut(); }); }, []);
   useEffect(() => { if (user) loadReports(); }, [user, loadReports]);
   useEffect(() => { if (!user) return undefined; const timer = setInterval(loadReports, 60_000); return () => clearInterval(timer); }, [user, loadReports]);
   useEffect(() => { document.documentElement.classList.toggle('dark', dark); localStorage.setItem('map-analytic-theme', theme); }, [dark, theme]);
