@@ -23,7 +23,8 @@
 :root.dark { color-scheme: dark; }
 .app-shell.app-shell {
   background-color: #f1f5f9;
-  background-image: radial-gradient(ellipse at 5% 10%, #c7d9f580, transparent 55%), repeating-radial-gradient(ellipse at 100% 0, transparent 0 58px, #7086a914 59px 60px);
+  background-image: repeating-radial-gradient(circle at 85% 20%, transparent 0 110px, #17616d24 111px 112px), conic-gradient(from 210deg at 85% 20%, transparent 0deg 285deg, #17616d14 320deg, transparent 321deg), radial-gradient(ellipse at 85% 20%, #d4e9ed80, transparent 65%);
+  background-attachment: fixed;
   background-size: auto;
 }
 .dark .app-shell.app-shell {
