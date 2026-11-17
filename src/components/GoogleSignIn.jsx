@@ -8,18 +8,21 @@ export function GoogleSignIn({ onAuthenticated, dark = false }) {
   const [error, setError] = useState('');
   useEffect(() => {
     if (!clientId) { setError('El acceso con Google no está disponible en este momento.'); return undefined; }
+    let disposed = false;
     const render = () => {
+      if (disposed || !container.current) return;
+      container.current.replaceChildren();
       window.google.accounts.id.initialize({ client_id: clientId, callback: async ({ credential }) => {
         try { const result = await api.verifyGoogleCredential(credential); onAuthenticated(result.data); }
         catch (requestError) { setError(requestError.message === 'Google sign-in is not configured on the server.' ? 'Google aún no está configurado en Render. Agrega GOOGLE_CLIENT_ID con el mismo ID de Vercel.' : requestError.message); }
       }});
-      window.google.accounts.id.renderButton(container.current, { theme: dark ? 'filled_black' : 'outline', size: 'large', shape: 'rectangular', text: 'continue_with', locale: 'es', width: Math.min(400, container.current?.clientWidth || 400) });
+      window.google.accounts.id.renderButton(container.current, { theme: dark ? 'filled_black' : 'outline', size: 'large', shape: 'pill', text: 'continue_with', locale: 'es', width: Math.min(400, container.current?.clientWidth || 400) });
     };
     const current = document.querySelector('script[data-google-identity]');
     if (window.google) render();
     else if (current) current.addEventListener('load', render, { once: true });
     else { const script = document.createElement('script'); script.src = 'https://accounts.google.com/gsi/client'; script.async = true; script.dataset.googleIdentity = 'true'; script.addEventListener('load', render, { once: true }); script.addEventListener('error', () => setError('No fue posible cargar Google. Revisa la conexión y el origen autorizado.')); document.head.append(script); }
-    return undefined;
+    return () => { disposed = true; current?.removeEventListener('load', render); };
   }, [onAuthenticated, dark]);
   return <><div ref={container} className="mt-2 flex min-h-12 w-full justify-center overflow-hidden [&>div]:w-full [&>div>div]:w-full"/>{error && <p role="alert" className="mt-4 text-center text-sm text-red-500">{error}</p>}</>;
 }
