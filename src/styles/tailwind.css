@@ -30,6 +30,7 @@
   background-color: #080f1e;
   background-image: radial-gradient(ellipse at 0 0, #244b8d4d, transparent 55%), repeating-radial-gradient(ellipse at 100% 0, transparent 0 58px, #8da7d00d 59px 60px);
 }
+.dark .app-shell.app-shell { background-image: radial-gradient(circle at 15% 0%, #2f5fb855, transparent 34rem), radial-gradient(circle at 90% 22%, #155e7590, transparent 30rem), repeating-linear-gradient(115deg, transparent 0 38px, #6f8db31f 39px 40px), linear-gradient(90deg, #4b63861c 1px, transparent 1px), linear-gradient(#4b63861c 1px, transparent 1px); background-size: auto, auto, auto, 48px 48px, 48px 48px; }
 .app-shell form { align-self: start; }
 .app-shell .grid { align-items: start; }
 .app-shell section.max-w-md { max-width: 38rem; }
