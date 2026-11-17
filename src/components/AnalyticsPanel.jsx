@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { SeismicExplorer } from './SeismicExplorer';
+import { formatDateTime } from '../lib/dateTime.js';
 
 const panel = 'rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900';
 
@@ -17,7 +18,7 @@ export function AnalyticsPanel({ reports, scan, loading, scanning }) {
     <div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">Panorama territorial</p><h2 className="mt-1 text-2xl font-bold">Lo que está pasando</h2><p className="mt-1 text-sm text-slate-500">Análisis de los registros cargados. Radar: últimas 24 horas; comunidad: hasta 100 reportes recientes.</p></div><label className="text-sm">Región del radar<select value={region} onChange={(event) => setRegion(event.target.value)} className="ml-2 rounded-xl border border-slate-300 bg-white p-2 dark:border-slate-700 dark:bg-slate-900"><option value="all">Todas</option><option value="national">Colombia</option><option value="international">Otros países</option></select></label></div>
     <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">{[['Sismos consultados', scan ? events.length : '—'], ['Magnitud máxima', maximum], ['Reportes comunitarios', loading ? '…' : reports.length], ['Prioridad alta', loading ? '…' : severities[0].value]].map(([label, value], index) => <div key={label} className={`${panel} ${index === 0 ? 'border-blue-400 dark:border-blue-700' : ''}`}><p className="text-xs font-medium text-slate-500 dark:text-slate-400">{label}</p><p className="mt-2 text-3xl font-black tabular-nums">{value}</p>{label === 'Magnitud máxima' && maximumEvent && <p className="mt-1 line-clamp-2 text-xs text-slate-500" title={maximumEvent.title}>{maximumEvent.title}</p>}</div>)}</div>
     <div className="grid gap-4 lg:grid-cols-3"><div className={panel}><h3 className="font-bold">Magnitud de los sismos</h3><p className="mb-5 mt-1 text-xs text-slate-500">Cantidad por intervalo de magnitud</p>{scan ? <Bars rows={magnitudes} color="bg-blue-600"/> : <Empty>Escanea el radar para visualizar los sismos.</Empty>}</div><div className={panel}><h3 className="font-bold">Prioridad de los reportes</h3><p className="mb-5 mt-1 text-xs text-slate-500">Clasificación de reportes comunitarios</p>{loading ? <Empty>Cargando reportes…</Empty> : <Bars rows={severities} color="bg-violet-500"/>}</div><div className={panel}><h3 className="font-bold">Fenómenos registrados</h3><p className="mb-5 mt-1 text-xs text-slate-500">Distribución por categoría</p>{loading ? <Empty>Cargando reportes…</Empty> : <Bars rows={categories} color="bg-emerald-500"/>}</div></div>
-    {scan && <p className="text-xs text-slate-500">Radar actualizado: {new Date(scan.fetchedAt).toLocaleString('es-CO')}. Las gráficas representan los eventos mostrados, no el total mundial.</p>}
+    {scan && <p className="text-xs text-slate-500">Radar actualizado: {formatDateTime(scan.fetchedAt)}. Las gráficas representan los eventos mostrados, no el total mundial.</p>}
   </section>;
 }
 
