@@ -6,8 +6,7 @@ export class ApiError extends Error {
   constructor(message, status, requestId) { super(message); this.name = 'ApiError'; this.status = status; this.requestId = requestId; }
 }
 async function request(path, options) {
-  let token;
-  try { token = JSON.parse(sessionStorage.getItem('map-analytic-session') || 'null')?.token; } catch {}
+  const token = readStoredToken();
   const response = await fetch(`${baseUrl}${path}`, { ...options, headers: { ...options?.headers, ...(token ? { Authorization: `Bearer ${token}` } : {}) }, signal: AbortSignal.timeout(45_000) });
   const body = await response.json().catch(() => ({}));
   if (!response.ok) throw new ApiError(body.error || (response.status === 503 ? 'El servidor está iniciando. Inténtalo en unos segundos.' : 'No fue posible completar la solicitud.'), response.status, response.headers.get('x-request-id') || body.requestId);
@@ -33,3 +32,5 @@ export const api = {
   register: (name, email, password) => request('/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, email, password }) }),
   attachmentUrl: (url) => `${baseUrl.replace(/\/api\/v1$/, '')}${url}`
 };
+import { readStoredToken } from './session.js';
+
