@@ -1,0 +1,25 @@
+.territory-auth { display:grid; grid-template-columns:1fr 1fr; width:100%; max-width:1152px; margin:auto; padding:18px; border:1px solid #e6e1e6; border-radius:36px; background:#f8f7fa; box-shadow:0 30px 90px #40344124; }
+.territory-form { display:grid; align-items:center; padding:24px; min-width:0; }
+.territory-auth .territory-form section { max-width:none; border:0; box-shadow:none; background:transparent; }
+.territory-auth .territory-form section > div:first-child { background:transparent; color:#302d39; border:0; text-align:left; padding:12px 28px; }
+.territory-auth .territory-form section > div:first-child > span { display:none; }
+.territory-auth .territory-form section > div:first-child p { color:#756779; }
+.territory-auth .territory-form section > div:last-child { background:transparent; }
+.territory-auth button.bg-blue-700 { background:#885d70; }
+.territory-auth button.bg-blue-700:hover { background:#71495c; }
+.territory-auth input { color:#302d39; font-size:16px; }
+.territory-scene { position:relative; min-height:680px; overflow:hidden; border-radius:25px; background:linear-gradient(#77546e,#edb78f 60%,#d7c0c5); }
+.territory-scene svg { position:absolute; inset:0; width:100%; height:100%; }
+.territory-copy { position:relative; z-index:1; padding:36px; color:#fff8f1; }
+.territory-copy > p:first-child { font-size:11px; letter-spacing:.15em; font-weight:700; }
+.territory-copy h2 { font-size:clamp(28px,3vw,42px); line-height:1.12; margin:28px 0 16px; font-weight:700; }
+.territory-copy p { max-width:320px; font-size:15px; line-height:1.6; }
+.territory-caption { position:absolute; inset:auto 24px 24px; padding:18px; border:1px solid #ffffff30; border-radius:16px; background:#302e45ed; color:#fff5e9; }
+.territory-caption small { display:block; margin-top:5px; color:#ddd0e3; font-size:11px; }
+.dark .territory-auth { background:#211f28; border-color:#433b4b; }
+.dark .territory-auth .territory-form section > div:first-child { color:#f6edf5; }
+.dark .territory-auth .territory-form section > div:first-child p { color:#c6b6c8; }
+.dark .territory-auth input { color:#f6edf5; }
+.dark .territory-scene { background:linear-gradient(#322d48,#9a7186 60%,#55445d); }
+.dark .territory-auth button.bg-blue-700 { background:#93687e; }
+@media (max-width:800px) { .territory-auth { grid-template-columns:1fr; padding:8px; border-radius:24px; } .territory-form { padding:8px; } .territory-scene { display:none; } }

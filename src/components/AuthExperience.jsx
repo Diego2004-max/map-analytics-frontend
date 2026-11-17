@@ -1,9 +1,22 @@
-import { Globe2, Radio, ShieldCheck } from 'lucide-react';
 import { AuthCard } from './AuthCard';
+import '../styles/auth-experience.css';
 
 export function AuthExperience({ onAuthenticated, dark }) {
-  return <div className="mx-auto grid w-full max-w-6xl overflow-hidden rounded-[2rem] border border-slate-200 bg-white/95 shadow-2xl backdrop-blur lg:grid-cols-[.9fr_1.1fr] dark:border-slate-700 dark:bg-slate-900/90">
-    <aside className="hidden bg-gradient-to-br from-slate-100 via-white to-blue-50 p-12 text-slate-900 dark:from-slate-950 dark:via-slate-900 dark:to-cyan-950 dark:text-white lg:flex lg:flex-col lg:justify-between"><div><span className="inline-flex rounded-2xl bg-blue-100 p-3 text-blue-700 ring-1 ring-blue-200 dark:bg-cyan-400/15 dark:text-cyan-200 dark:ring-cyan-300/20"><Globe2/></span><h1 className="mt-8 text-4xl font-black leading-tight">Inteligencia territorial para decisiones oportunas.</h1><p className="mt-4 max-w-md text-slate-600 dark:text-slate-300">Monitorea actividad sísmica, registra evidencia comunitaria y consulta el estado operativo en un solo lugar.</p></div><div className="grid grid-cols-2 gap-3 text-sm"><span className="rounded-xl bg-blue-100/70 p-4 dark:bg-white/5"><Radio className="mb-2 text-blue-700 dark:text-cyan-300"/>Radar en tiempo real</span><span className="rounded-xl bg-blue-100/70 p-4 dark:bg-white/5"><ShieldCheck className="mb-2 text-blue-700 dark:text-cyan-300"/>Acceso protegido</span></div></aside>
-    <div className="grid place-items-center p-4 sm:p-8"><AuthCard onAuthenticated={onAuthenticated} dark={dark}/></div>
+  return <div className="territory-auth">
+    <div className="territory-form"><AuthCard onAuthenticated={onAuthenticated} dark={dark}/></div>
+    <aside className="territory-scene">
+      <div className="territory-copy"><p>MAP ANALYTIC AI</p><h2>Un territorio.<br/>Muchas señales.</h2><p>Observa la actividad sísmica y conecta los reportes de tu comunidad.</p></div>
+      <svg viewBox="0 0 600 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <circle cx="400" cy="365" r="65" fill="#ffe6b6"/>
+        <path d="M0 540 110 430 220 510 330 400 470 520 600 430V800H0Z" fill="#8b809d"/>
+        <path d="M0 610 170 490 310 580 470 495 600 600V800H0Z" fill="#b2a0bc"/>
+        <path d="M0 650Q160 540 350 640T600 620V800H0Z" fill="#57506c"/>
+        <path d="M430 510Q260 560 410 620T260 800H100Q340 685 285 625T430 510" fill="#d7c5d5"/>
+        <g fill="none" stroke="#fff1df" opacity=".4"><ellipse cx="360" cy="580" rx="90" ry="34"/><ellipse cx="360" cy="580" rx="150" ry="57"/><ellipse cx="360" cy="580" rx="210" ry="80"/></g>
+        <circle cx="360" cy="580" r="6" fill="#ffe6b6"/>
+        <path d="M0 760Q120 690 200 750T600 730V800H0Z" fill="#332f47"/>
+      </svg>
+      <div className="territory-caption">Del dato a la acción.<small>Monitoreo sísmico · Evidencia comunitaria</small></div>
+    </aside>
   </div>;
 }
