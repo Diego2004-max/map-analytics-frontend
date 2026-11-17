@@ -7,7 +7,13 @@ export class ApiError extends Error {
 }
 async function request(path, options) {
   const token = readStoredToken();
-  const response = await fetch(`${baseUrl}${path}`, { ...options, headers: { ...options?.headers, ...(token ? { Authorization: `Bearer ${token}` } : {}) }, signal: AbortSignal.timeout(45_000) });
+  let response;
+  try {
+    response = await fetch(`${baseUrl}${path}`, { ...options, headers: { ...options?.headers, ...(token ? { Authorization: `Bearer ${token}` } : {}) }, signal: AbortSignal.timeout(45_000) });
+  } catch (error) {
+    if (error?.name === 'TimeoutError' || error?.name === 'AbortError') throw new ApiError('El servicio tardó demasiado. Inténtalo de nuevo.', 408);
+    throw new ApiError('No se pudo conectar con el servicio.', 0);
+  }
   const body = await response.json().catch(() => ({}));
   if (!response.ok) throw new ApiError(body.error || (response.status === 503 ? 'El servidor está iniciando. Inténtalo en unos segundos.' : 'No fue posible completar la solicitud.'), response.status, response.headers.get('x-request-id') || body.requestId);
   return body;
